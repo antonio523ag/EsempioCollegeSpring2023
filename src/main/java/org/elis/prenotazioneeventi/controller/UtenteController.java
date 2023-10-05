@@ -6,7 +6,6 @@ import org.elis.prenotazioneeventi.dto.response.LoginResponse;
 import org.elis.prenotazioneeventi.dto.response.ClienteDTO;
 import org.elis.prenotazioneeventi.model.Utente;
 import org.elis.prenotazioneeventi.service.definition.UtenteService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +20,11 @@ import java.util.List;
 @RestController
 public class UtenteController {
 
-    @Autowired
-    UtenteService service;
+    private final UtenteService service;
+
+    public UtenteController(UtenteService service) {
+        this.service = service;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
