@@ -7,11 +7,10 @@ import io.jsonwebtoken.security.Keys;
 import org.elis.prenotazioneeventi.model.Ruolo;
 import org.elis.prenotazioneeventi.model.Utente;
 import org.elis.prenotazioneeventi.service.definition.UtenteService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -19,10 +18,14 @@ import java.util.Date;
 @Service
 public class TokenUtil {
 
-    @Autowired
-    UtenteService service;
+    private final UtenteService service;
 
-    private String key="jxnqrlvnnjdikyawoimftghrmgffikoqqlujmbewaldzcutgpzltcqwfewedinytnjhicjscqpadvjtmjipvvhgcmurewozjrozazigpchgckxgthsrbchxefgiutmmjuwvgzsqbptkbkxjtourxebxgoaqukzthllmmeewsicnqugplyzmmyixrkojvkwcrbhxwljejaychibghcpczvoqvpzfddmesrgeziopbniazizhrcbdqltwypogmybyu";
+    @Value("${miocodice.jwt.key}")
+    private String key;
+
+    public TokenUtil(UtenteService service) {
+        this.service = service;
+    }
 
     private SecretKey generaChiave(){
         return Keys.hmacShaKeyFor(key.getBytes());

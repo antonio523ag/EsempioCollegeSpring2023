@@ -9,6 +9,7 @@ import org.elis.prenotazioneeventi.security.TokenUtil;
 import org.elis.prenotazioneeventi.service.definition.UtenteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,8 +45,9 @@ public class UtenteController {
     }
 
     @GetMapping("/admin/prova")
-    public ResponseEntity<String> sonoUnAdmin(){
-        return ResponseEntity.status(HttpStatus.OK).body("ciao sono un admin");
+    public ResponseEntity<String> sonoUnAdmin(UsernamePasswordAuthenticationToken upat){
+        Utente u= (Utente) upat.getPrincipal();
+        return ResponseEntity.status(HttpStatus.OK).body("ciao sono "+u.getNome()+" "+u.getCognome());
     }
 
     @PostMapping("/registra")
