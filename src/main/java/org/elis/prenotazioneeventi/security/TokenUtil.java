@@ -10,6 +10,7 @@ import org.elis.prenotazioneeventi.service.definition.UtenteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -21,43 +22,39 @@ public class TokenUtil {
     @Autowired
     UtenteService service;
 
-    private String key="miaChiaveCustom";
+    private String key="jxnqrlvnnjdikyawoimftghrmgffikoqqlujmbewaldzcutgpzltcqwfewedinytnjhicjscqpadvjtmjipvvhgcmurewozjrozazigpchgckxgthsrbchxefgiutmmjuwvgzsqbptkbkxjtourxebxgoaqukzthllmmeewsicnqugplyzmmyixrkojvkwcrbhxwljejaychibghcpczvoqvpzfddmesrgeziopbniazizhrcbdqltwypogmybyu";
 
-    private Key generaChiave(){
+    private SecretKey generaChiave(){
         return Keys.hmacShaKeyFor(key.getBytes());
     }
 
-    private Claims creaPayloadToken(Utente u){
+
+    public String generaToken(Utente u){
         String ruolo=u.getRuolo().toString();
         String username=u.getEmail();
         String dataNascita=u.getDataDiNascita().format(DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy"));
         String saluto="ciao, hai letto i miei dati, e adesso?";
-        Claims claims= Jwts.claims().subject(username).build();
-        claims.put("ruolo",ruolo);
-        claims.put("dataNascita",dataNascita);
-        claims.put("saluto",saluto);
-        return claims;
-    }
-    public String generaToken(Utente u){
+
         //1000L (1sec)*60(1 min)*60(1h)*24(1g)*60(60g)
         long millisecondiDiDurata=1000L*60*60*24*60;
-        Claims c=creaPayloadToken(u);
-        String token=Jwts.builder()
-                .setClaims(c)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+millisecondiDiDurata))
+        return Jwts.builder().claims()
+                .add("ruolo",ruolo)
+                .add("dataNascita",dataNascita)
+                .add("saluto",saluto)
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis()+millisecondiDiDurata))
+                .and()
                 .signWith(generaChiave())
                 .compact();
-        return token;
     }
     private Claims prendiClaimsDalToken(String token){
         JwtParser parser=Jwts.parser()
-                .setSigningKey(generaChiave())
+                .verifyWith(generaChiave())
                 .build();
-        Claims claims=parser.parseClaimsJwt(token)
+        return parser.parseSignedClaims(token)
                 .getPayload();
 
-        return claims;
     }
 
     public String getSubject(String token){

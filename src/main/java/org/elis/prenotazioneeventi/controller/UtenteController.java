@@ -5,6 +5,7 @@ import org.elis.prenotazioneeventi.dto.request.RegistrazioneRequest;
 import org.elis.prenotazioneeventi.dto.response.LoginResponse;
 import org.elis.prenotazioneeventi.dto.response.ClienteDTO;
 import org.elis.prenotazioneeventi.model.Utente;
+import org.elis.prenotazioneeventi.security.TokenUtil;
 import org.elis.prenotazioneeventi.service.definition.UtenteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,20 +22,30 @@ import java.util.List;
 public class UtenteController {
 
     private final UtenteService service;
+    private final TokenUtil util;
 
-    public UtenteController(UtenteService service) {
+    public UtenteController(UtenteService service, TokenUtil util) {
         this.service = service;
+        this.util = util;
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
         Utente u=service.login(request);
+        //creo il token jwt
+        String token=util.generaToken(u);
         LoginResponse l=new LoginResponse();
         l.setId(u.getId());
         l.setRuolo(u.getRuolo().name());
         l.setEmail(u.getEmail());
         l.setAnni((int) ChronoUnit.YEARS.between(u.getDataDiNascita(), LocalDate.now()));
-        return ResponseEntity.status(HttpStatus.OK).body(l);
+        //prima del body lo setto come header e come chiave metto "Authorization"
+        return ResponseEntity.status(HttpStatus.OK).header("Authorization",token).body(l);
+    }
+
+    @GetMapping("/admin/prova")
+    public ResponseEntity<String> sonoUnAdmin(){
+        return ResponseEntity.status(HttpStatus.OK).body("ciao sono un admin");
     }
 
     @PostMapping("/registra")
@@ -63,5 +74,7 @@ public class UtenteController {
         c.setDataDiNascita(u.getDataDiNascita());
         return c;
     }
+
+
 
 }
