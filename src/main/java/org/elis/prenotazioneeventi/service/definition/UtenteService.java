@@ -12,4 +12,6 @@ public interface UtenteService {
 
     public List<Utente> findAllClienti();
     public List<Utente> findAllVenditori();
+    Utente findByEmail(String email);
+
 }

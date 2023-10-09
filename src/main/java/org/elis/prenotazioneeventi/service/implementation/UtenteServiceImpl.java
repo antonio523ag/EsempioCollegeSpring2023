@@ -100,4 +100,9 @@ public class UtenteServiceImpl implements UtenteService {
     public List<Utente> findAllVenditori() {
         return utenteRepo.findAllByRuolo(Ruolo.VENDITORE);
     }
+
+    @Override
+    public Utente findByEmail(String email) {
+        return utenteRepo.findByEmail(email).orElseThrow(UtenteNonTrovatoException::new);
+    }
 }
