@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
 @EnableWebSecurity
@@ -25,15 +27,16 @@ public class GestoreDellaFilterChain {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, HandlerMappingIntrospector introspector) throws Exception {
+        MvcRequestMatcher.Builder builder=new MvcRequestMatcher.Builder(introspector);
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .headers(cust->cust.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/consoleDB/**").permitAll()
-                        .requestMatchers("/all/**").permitAll()
-                        .requestMatchers("/client/**").hasRole(Ruolo.CLIENTE.toString())
-                        .requestMatchers("/seller/**").hasRole(Ruolo.VENDITORE.toString())
-                        .requestMatchers("/admin/**").hasAnyRole(Ruolo.ADMIN.toString(),Ruolo.SUPERADMIN.toString())
+                        .requestMatchers(builder.pattern("/h2-console/**")).permitAll()
+                        .requestMatchers(builder.pattern("/all/**")).permitAll()
+                        .requestMatchers(builder.pattern("/client/**")).hasRole(Ruolo.CLIENTE.toString())
+                        .requestMatchers(builder.pattern("/seller/**")).hasRole(Ruolo.VENDITORE.toString())
+                        .requestMatchers(builder.pattern("/admin/**")).hasAnyRole(Ruolo.ADMIN.toString(),Ruolo.SUPERADMIN.toString())
                         .anyRequest().permitAll()
                 ).sessionManagement(sess->sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(AbstractHttpConfigurer::disable)
