@@ -7,6 +7,7 @@ import org.elis.prenotazioneeventi.dto.response.ClienteDTO;
 import org.elis.prenotazioneeventi.model.Utente;
 import org.elis.prenotazioneeventi.security.TokenUtil;
 import org.elis.prenotazioneeventi.service.definition.UtenteService;
+import org.elis.prenotazioneeventi.util.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +31,7 @@ public class UtenteController {
         this.util = util;
     }
 
-    @PostMapping("/login")
+    @PostMapping("/all/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
         Utente u=service.login(request);
         //creo il token jwt
@@ -50,7 +51,7 @@ public class UtenteController {
         return ResponseEntity.status(HttpStatus.OK).body("ciao sono "+u.getNome()+" "+u.getCognome());
     }
 
-    @PostMapping("/registra")
+    @PostMapping("/all/registra")
     public ResponseEntity<Void> registrazione(@RequestBody RegistrazioneRequest request){
         boolean registrato= service.registrazione(request);
         if(registrato)return ResponseEntity.ok().build();
@@ -60,22 +61,13 @@ public class UtenteController {
     @GetMapping("/all/getAll")
     public ResponseEntity<List<ClienteDTO>> getAllClienti(){
         List<ClienteDTO> clienti=service.findAllClienti()
-                .stream().map(this::toClienteDTO).toList();
+                .stream().map(Utilities::toClienteDTO).toList();
         return ResponseEntity.status(HttpStatus.OK).body(clienti);
 
 
     }
 
-    private ClienteDTO toClienteDTO(Utente u){
-        ClienteDTO c=new ClienteDTO();
-        c.setNome(u.getNome());
-        c.setCognome(u.getCognome());
-        c.setId(u.getId());
-        c.setEmail(u.getEmail());
-        c.setCodiceFiscale(u.getCodiceFiscale());
-        c.setDataDiNascita(u.getDataDiNascita());
-        return c;
-    }
+
 
 
 

@@ -76,6 +76,7 @@ public class UtenteServiceImpl implements UtenteService {
         if(request.getIdRichiedente()<=0){
             u.setRuolo(Ruolo.CLIENTE);
         }else{
+
             //se email e password sono presenti allora controllo se l'utente che fa la richiesta
             //di creazione di un account è presente sul database
             Optional<Utente> ou=utenteRepo.findById(request.getIdRichiedente());
@@ -87,6 +88,7 @@ public class UtenteServiceImpl implements UtenteService {
             if(richiedente.getRuolo().equals(Ruolo.VENDITORE)||richiedente.getRuolo().equals(Ruolo.CLIENTE)) return false;
 
         }
+        System.out.println("registro l'utente");
         u=utenteRepo.save(u);
         return true;
     }
