@@ -23,6 +23,7 @@ public class FilterJwt extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authCode=request.getHeader("Authorization");
+        System.out.println("chiamata");
         if(authCode!=null&&authCode.startsWith("Bearer")){
             String token=authCode.substring(7);//"Bearer " viene tolto
             Utente u=tokenUtil.getUtenteFromToken(token);

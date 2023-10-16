@@ -7,10 +7,14 @@ import org.elis.prenotazioneeventi.dto.request.LoginRequest;
 import org.elis.prenotazioneeventi.dto.request.RegistrazioneRequest;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
@@ -26,17 +30,12 @@ import java.time.LocalDate;
 @SpringBootTest
 @ContextConfiguration(classes = PrenotazioneEventiApplication.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@AutoConfigureMockMvc(print = MockMvcPrint.LOG_DEBUG,printOnlyOnFailure = false)
 class PrenotazioneEventiApplicationTests {
 
     @Autowired
-    private WebApplicationContext context;
     private MockMvc mock;
 
-    @BeforeEach
-    public void creaMock(){
-        mock= MockMvcBuilders.webAppContextSetup(context)
-                .build();
-    }
 
     @Order(2)
     @Test
@@ -88,7 +87,7 @@ class PrenotazioneEventiApplicationTests {
     }
 
     @Test
-    @WithMockUser(username = "a.grillo@elis.org", roles = {"ADMIN"})
+    @WithUserDetails("a.grillo@elis.org")
     public void provaSecurity() throws Exception {
         mock.perform(MockMvcRequestBuilders.get("/admin/prova"))
                 .andExpect(MockMvcResultMatchers.status().is(200))
@@ -96,7 +95,6 @@ class PrenotazioneEventiApplicationTests {
     }
 
     @Test
-    @WithMockUser
     public void provaSecurityConToken() throws Exception {
         LoginRequest request=new LoginRequest();
         request.setEmail("a.grillo@elis.org");
@@ -106,6 +104,8 @@ class PrenotazioneEventiApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json))
                 .andReturn().getResponse().getHeader("Authorization");
+        //String tokenJwt="eyJhbGciOiJIUzUxMiJ9.eyJydW9sbyI6IkFETUlOIiwiZGF0YU5hc2NpdGEiOiJnaW92ZWTDrCAwNyBkaWNlbWJyZSAxOTg5Iiwic2FsdXRvIjoiY2lhbywgaGFpIGxldHRvIGkgbWllaSBkYXRpLCBlIGFkZXNzbz8iLCJzdWIiOiJhLmdyaWxsb0BlbGlzLm9yZyIsImlhdCI6MTY5NzQ1MTE3NCwiZXhwIjoxNzAyNjM1MTc0fQ.Hy_IAkIQ9K8yaVyOSa36Ust1KIpQmCYOp_w4Rl9YDnhC-HQQDK62gmfGS-RbPltVFP_ATgDlJuF1EN0Nn70RXg";
+        System.out.println(tokenJwt);
         mock.perform(MockMvcRequestBuilders.get("/admin/prova")
                         .header("Authorization","Bearer "+tokenJwt)
                 )

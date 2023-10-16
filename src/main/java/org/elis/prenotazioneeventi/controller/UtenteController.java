@@ -47,6 +47,7 @@ public class UtenteController {
 
     @GetMapping("/admin/prova")
     public ResponseEntity<String> sonoUnAdmin(UsernamePasswordAuthenticationToken upat){
+        if(upat==null)return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("non hai fatto la login");
         Utente u= (Utente) upat.getPrincipal();
         return ResponseEntity.status(HttpStatus.OK).body("ciao sono "+u.getNome()+" "+u.getCognome());
     }

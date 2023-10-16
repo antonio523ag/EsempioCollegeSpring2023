@@ -26,18 +26,17 @@ public class GestoreDellaFilterChain {
         this.provider = provider;
     }
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, HandlerMappingIntrospector introspector) throws Exception {
-        MvcRequestMatcher.Builder builder=new MvcRequestMatcher.Builder(introspector);
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .headers(cust->cust.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers(builder.pattern("/login")).permitAll()
-                        .requestMatchers(builder.pattern("/modificaprezzobiglietto")).hasRole(Ruolo.VENDITORE.toString())
-                        .requestMatchers(builder.pattern("/h2-console/**")).permitAll()
-                        .requestMatchers(builder.pattern("/all/**")).permitAll()
-                        .requestMatchers(builder.pattern("/client/**")).hasRole(Ruolo.CLIENTE.toString())
-                        .requestMatchers(builder.pattern("/seller/**")).hasRole(Ruolo.VENDITORE.toString())
-                        .requestMatchers(builder.pattern("/admin/**")).hasAnyRole(Ruolo.ADMIN.toString(),Ruolo.SUPERADMIN.toString())
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/modificaprezzobiglietto").hasRole(Ruolo.VENDITORE.toString())
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/all/**").permitAll()
+                        .requestMatchers("/client/**").hasRole(Ruolo.CLIENTE.toString())
+                        .requestMatchers("/seller/**").hasRole(Ruolo.VENDITORE.toString())
+                        .requestMatchers("/admin/**").hasAnyRole(Ruolo.ADMIN.toString(),Ruolo.SUPERADMIN.toString())
                         .anyRequest().permitAll()
                 ).sessionManagement(sess->sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(AbstractHttpConfigurer::disable)
