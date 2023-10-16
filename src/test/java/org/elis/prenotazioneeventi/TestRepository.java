@@ -27,6 +27,5 @@ public class TestRepository {
         assertThat(repo.findByEmailAndPasswordAndBloccatoIsFalse("a.grillo@elis.org","Password!1"))
                 .get().extracting(Utente::getNome)
                 .isEqualTo("Antonio");
-
     }
 }
