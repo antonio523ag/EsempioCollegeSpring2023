@@ -83,4 +83,19 @@ public class Utente implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Utente{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", cognome='" + cognome + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", dataDiNascita=" + dataDiNascita +
+                ", codiceFiscale='" + codiceFiscale + '\'' +
+                ", ruolo=" + ruolo +
+                ", bloccato=" + bloccato +
+                '}';
+    }
 }

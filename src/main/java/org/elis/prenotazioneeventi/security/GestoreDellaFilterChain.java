@@ -25,7 +25,6 @@ public class GestoreDellaFilterChain {
         this.filterJwt = filterJwt;
         this.provider = provider;
     }
-    private String[] prova={"1"};
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, HandlerMappingIntrospector introspector) throws Exception {
         MvcRequestMatcher.Builder builder=new MvcRequestMatcher.Builder(introspector);
@@ -33,7 +32,6 @@ public class GestoreDellaFilterChain {
                 .headers(cust->cust.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth->auth
                         .requestMatchers(builder.pattern("/login")).permitAll()
-                        .requestMatchers(prova).permitAll()
                         .requestMatchers(builder.pattern("/modificaprezzobiglietto")).hasRole(Ruolo.VENDITORE.toString())
                         .requestMatchers(builder.pattern("/h2-console/**")).permitAll()
                         .requestMatchers(builder.pattern("/all/**")).permitAll()

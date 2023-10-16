@@ -9,11 +9,14 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -48,7 +51,7 @@ class PrenotazioneEventiApplicationTests {
     public void testLogin2() throws Exception {
         //creo l'oggetto della request
         LoginRequest l=new LoginRequest();
-        l.setEmail("g.bongiovanni@elis.org");
+        l.setEmail("g.bongiovanni");
         l.setPassword("Password!1");
         //lo converto in json
         String json=new ObjectMapper().writeValueAsString(l);
@@ -59,8 +62,9 @@ class PrenotazioneEventiApplicationTests {
         //la passo al mock
         mock.perform(builder)
                 //controllo il risultato
-            .andExpect(MockMvcResultMatchers.status().is(200));
+            .andExpect(MockMvcResultMatchers.status().is(400));
     }
+
 
     @Order(1)
     @Test
@@ -81,5 +85,54 @@ class PrenotazioneEventiApplicationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json);
         mock.perform(builder).andExpect(MockMvcResultMatchers.status().is(200));
+    }
+
+    @Test
+    @WithMockUser(username = "a.grillo@elis.org", roles = {"ADMIN"})
+    public void provaSecurity() throws Exception {
+        mock.perform(MockMvcRequestBuilders.get("/admin/prova"))
+                .andExpect(MockMvcResultMatchers.status().is(200))
+                .andReturn();
+    }
+
+    @Test
+    @WithMockUser
+    public void provaSecurityConToken() throws Exception {
+        LoginRequest request=new LoginRequest();
+        request.setEmail("a.grillo@elis.org");
+        request.setPassword("Password!1");
+        String json=new ObjectMapper().writeValueAsString(request);
+        String tokenJwt=mock.perform(MockMvcRequestBuilders.post("/all/login")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json))
+                .andReturn().getResponse().getHeader("Authorization");
+        mock.perform(MockMvcRequestBuilders.get("/admin/prova")
+                        .header("Authorization","Bearer "+tokenJwt)
+                )
+                .andExpect(MockMvcResultMatchers.status().is(200))
+                .andReturn();
+    }
+
+
+
+    @Test
+    public void testResultValueOnLogin() throws Exception{
+        LoginRequest request=new LoginRequest();
+        request.setEmail("a.grillo@elis.org");
+        request.setPassword("Password!1");
+        String json=new ObjectMapper().writeValueAsString(request);
+        String tokenJwt=mock.perform(MockMvcRequestBuilders.post("/all/login")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(json))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andExpect(MockMvcResultMatchers.content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email")
+                        .exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email")
+                        .value("a.grillo@elis.org"))
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn().getResponse().getHeader("Authorization");
+
     }
 }

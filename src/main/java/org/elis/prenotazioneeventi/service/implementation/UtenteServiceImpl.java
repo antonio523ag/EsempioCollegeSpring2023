@@ -41,6 +41,9 @@ public class UtenteServiceImpl implements UtenteService {
         if(request.getPassword()==null||request.getPassword().isEmpty()){
             errori.put("password","la password non può essere vuota");
         }
+        if(!request.getEmail().matches("^(.+)@(\\S+)$")){
+            errori.put("email","l'email non rispetta il formato standard");
+        }
         if(!errori.isEmpty()){
             throw new DatiNonValidiException(errori);
         }
