@@ -58,7 +58,9 @@ public class CriteriaUtenteRepository {
         List<Predicate> predicate=new ArrayList<>();
         //vado a creare le condizioni per cui il mio filtro deve funzionare
         if(request.getNome()!=null&&!request.getNome().isEmpty()) {
-            Predicate filtroNome = cb.like(root.get("nome"), "%" + request.getNome() + "%");
+            //con il cb.upper porto tutti gli elementi in UpperCase, in modo che, mettendo anche il parametro
+            // in maiuscolo la mia ricerca diventa ignore case
+            Predicate filtroNome = cb.like(cb.upper(root.get("nome")), "%" + request.getNome().toUpperCase() + "%");
             predicate.add(filtroNome);
         }
         if(request.getCognome()!=null&&!request.getCognome().isEmpty()) {
@@ -106,7 +108,7 @@ public class CriteriaUtenteRepository {
             //prendo il valore che devo settare nel filtro di quel determinato campo
             String valoreCampo=request.getFiltroEvento().get(nomeCampo);
             //e creo il mio predicate
-            Predicate p=builder.like(root.get(nomeCampo),"%"+valoreCampo+"%");
+            Predicate p=builder.like(root.get(nomeCampo),("%"+valoreCampo+"%"));
             //lo aggiungo alla lista
             predicate.add(p);
         }
