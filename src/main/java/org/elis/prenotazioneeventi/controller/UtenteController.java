@@ -1,5 +1,6 @@
 package org.elis.prenotazioneeventi.controller;
 
+import org.elis.prenotazioneeventi.dto.request.FiltroUtente;
 import org.elis.prenotazioneeventi.dto.request.LoginRequest;
 import org.elis.prenotazioneeventi.dto.request.RegistrazioneRequest;
 import org.elis.prenotazioneeventi.dto.response.LoginResponse;
@@ -66,6 +67,12 @@ public class UtenteController {
         return ResponseEntity.status(HttpStatus.OK).body(clienti);
 
 
+    }
+
+    @PostMapping("/all/clientiFiltrati")
+    public ResponseEntity<List<ClienteDTO>> getClientiFiltrati(@RequestBody FiltroUtente request){
+        List<ClienteDTO> utenti=service.getUtentiFiltrati(request).stream().map(Utilities::toClienteDTO).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(utenti);
     }
 
 
