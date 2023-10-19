@@ -3,12 +3,14 @@ package org.elis.prenotazioneeventi.service.implementation;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import org.elis.prenotazioneeventi.dto.request.FiltroUtente;
 import org.elis.prenotazioneeventi.dto.request.LoginRequest;
 import org.elis.prenotazioneeventi.dto.request.RegistrazioneRequest;
 import org.elis.prenotazioneeventi.exception.DatiNonValidiException;
 import org.elis.prenotazioneeventi.exception.UtenteNonTrovatoException;
 import org.elis.prenotazioneeventi.model.Ruolo;
 import org.elis.prenotazioneeventi.model.Utente;
+import org.elis.prenotazioneeventi.repository.CriteriaUtenteRepository;
 import org.elis.prenotazioneeventi.repository.UtenteRepository;
 import org.elis.prenotazioneeventi.service.definition.UtenteService;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,12 @@ public class UtenteServiceImpl implements UtenteService {
     private UtenteRepository utenteRepo;
     private final Validator validator;
 
-    public UtenteServiceImpl(UtenteRepository repository, Validator validator){
+    private final CriteriaUtenteRepository criteriaUtenteRepository;
+
+    public UtenteServiceImpl(UtenteRepository repository, Validator validator, CriteriaUtenteRepository criteriaUtenteRepository){
         utenteRepo=repository;
         this.validator = validator;
+        this.criteriaUtenteRepository = criteriaUtenteRepository;
     }
 
     @Override
@@ -109,5 +114,10 @@ public class UtenteServiceImpl implements UtenteService {
     @Override
     public Utente findByEmail(String email) {
         return utenteRepo.findByEmail(email).orElseThrow(UtenteNonTrovatoException::new);
+    }
+
+    @Override
+    public List<Utente> getUtentiFiltrati(FiltroUtente request) {
+        return criteriaUtenteRepository.getUtentiFiltrati(request);
     }
 }
