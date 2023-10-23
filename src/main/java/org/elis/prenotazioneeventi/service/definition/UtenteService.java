@@ -17,4 +17,5 @@ public interface UtenteService {
 
     List<Utente> getUtentiFiltrati(FiltroUtente request);
 
+    Utente login(String email, String password);
 }

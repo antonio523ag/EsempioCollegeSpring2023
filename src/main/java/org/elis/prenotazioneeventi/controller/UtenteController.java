@@ -34,7 +34,7 @@ public class UtenteController {
 
     @PostMapping("/all/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
-        Utente u=service.login(request);
+        Utente u=service.login(request.getEmail(),request.getPassword());
         //creo il token jwt
         String token=util.generaToken(u);
         LoginResponse l=new LoginResponse();
@@ -62,11 +62,28 @@ public class UtenteController {
 
     @GetMapping("/all/getAll")
     public ResponseEntity<List<ClienteDTO>> getAllClienti(){
+        long tempoChiamata=System.currentTimeMillis();
         List<ClienteDTO> clienti=service.findAllClienti()
                 .stream().map(Utilities::toClienteDTO).toList();
+        tempoChiamata=System.currentTimeMillis()-tempoChiamata;
+        System.out.println("tempo impiegato "+tempoChiamata);
         return ResponseEntity.status(HttpStatus.OK).body(clienti);
+    }
 
-
+    @GetMapping("/all/init")
+    public ResponseEntity<Void> init(){
+        for(int i=0;i<1000;i++){
+            RegistrazioneRequest r=new RegistrazioneRequest();
+            r.setNome("nome "+(i+1));
+            r.setCognome("cognome "+(i+1));
+            r.setCodiceFiscale("cod"+i);
+            r.setPassword("Password!1");
+            r.setPasswordRipetuta("Password!1");
+            r.setEmail("n.c."+i+"@elis.org");
+            r.setDataDiNascita(LocalDate.of(2000,1,1));
+            service.registrazione(r);
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/all/clientiFiltrati")

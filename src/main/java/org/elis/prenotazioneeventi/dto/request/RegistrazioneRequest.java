@@ -21,7 +21,7 @@ public class RegistrazioneRequest {
     private String passwordRipetuta;
     @Past(message = "non puoi essere nato nel futuro")
     private LocalDate dataDiNascita;
-    @Size(min = 16,max = 16, message = "il codice fiscale sono 16 caratteri")
+    //@Size(min = 16,max = 16, message = "il codice fiscale sono 16 caratteri")
     private String codiceFiscale;
     @Min(value = 1, message = "non esistono id minori di 1")
     private long idRichiedente;

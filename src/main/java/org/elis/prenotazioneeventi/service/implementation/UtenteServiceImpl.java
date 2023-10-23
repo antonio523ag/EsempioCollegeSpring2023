@@ -13,11 +13,16 @@ import org.elis.prenotazioneeventi.model.Utente;
 import org.elis.prenotazioneeventi.repository.CriteriaUtenteRepository;
 import org.elis.prenotazioneeventi.repository.UtenteRepository;
 import org.elis.prenotazioneeventi.service.definition.UtenteService;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@CacheConfig(cacheNames = {"utenti"})
 public class UtenteServiceImpl implements UtenteService {
 
 
@@ -52,7 +57,12 @@ public class UtenteServiceImpl implements UtenteService {
         if(!errori.isEmpty()){
             throw new DatiNonValidiException(errori);
         }
-        Optional<Utente> ut=utenteRepo.findByEmailAndPasswordAndBloccatoIsFalse(request.getEmail(),request.getPassword());
+        return login(request.getEmail(),request.getPassword());
+    }
+
+    @Cacheable(value = "utente",key = "#email.concat('-').concat(#password)")
+    public Utente login(String email,String password){
+        Optional<Utente> ut=utenteRepo.findByEmailAndPasswordAndBloccatoIsFalse(email,password);
         /*if(ut.isEmpty()){
             throw new UtenteNonTrovatoException();
         }
@@ -61,6 +71,15 @@ public class UtenteServiceImpl implements UtenteService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "utenti"),
+            @CacheEvict(cacheNames = "venditori"),
+            @CacheEvict(cacheNames = "clienti"),
+            //non avendo un parametro in ingresso che si chiama email non posso inserire
+            //direttamente #email, ci accederò tramite la variabile request, facendo
+            //nomeOggetto.nomeParametro
+            @CacheEvict(cacheNames = "utente", key = "#request.email")
+    })
     public boolean registrazione(RegistrazioneRequest request) {
         Set<ConstraintViolation<RegistrazioneRequest>> violation=validator.validate(request);
         if(!violation.isEmpty()){
@@ -102,15 +121,18 @@ public class UtenteServiceImpl implements UtenteService {
     }
 
     @Override
+    @Cacheable(value = "clienti")
     public List<Utente> findAllClienti() {
         return utenteRepo.findAllByRuolo(Ruolo.CLIENTE);
     }
 
     @Override
+    @Cacheable(value = "venditori")
     public List<Utente> findAllVenditori() {
         return utenteRepo.findAllByRuolo(Ruolo.VENDITORE);
     }
 
+    @Cacheable(value = "utente", key = "#email", sync = true)
     @Override
     public Utente findByEmail(String email) {
         return utenteRepo.findByEmail(email).orElseThrow(UtenteNonTrovatoException::new);
